@@ -60,4 +60,5 @@ productos.addProduct('gorra','azul x',100,null,30)
 productos.addProduct('pantalon','negro',0,null,10)
 
 console.log(productos.products)
+//buscar por id
 console.log(productos.getProductById(5))
