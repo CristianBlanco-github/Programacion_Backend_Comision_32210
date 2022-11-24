@@ -18,9 +18,10 @@ class ProductManager{
         return parseInt(Math.random() * 1000) 
     }
 
-    addProduct=(title, description, price,thumbnail, stock)=>{
+    addProduct=(title, description, price,thumbnail,code,stock)=>{
         const id=this.getNextID()
-        const code=this.getcode()
+        
+        // const code=this.getcode()
         const event={
             id,
             title,
@@ -29,20 +30,19 @@ class ProductManager{
             thumbnail:thumbnail ??'Sin imagen',
             code,
             stock :stock ??50
+            
         }
-
-        // const sameId = (element) => element === event.code;
-        // if (!this.products.some(sameId)) {
+        const sameId = (element) => element != event.code
+        if (!this.products.some(sameId)) {
             this.products.push(event)
-        // } else {
-        //     console.log("An id is duplicated")
-        // }
-        
+        } else {
+            console.log("An id is duplicated")
+        }
     }
-    addcode=(eventID,code)=>{
-        const event=this.products.find(event=>event.id==eventID)
-        return event.some(e=>e.codigo === code); 
-    }
+    // addcode=(eventID,code)=>{
+    //     const event=this.products.find(event=>event.id==eventID)
+    //     return event.some(e=>e.codigo === code); 
+    // }
     getProductById=(eventID)=>{
         const event=this.products.filter(product=>product.id==eventID)
         console.log(event)
@@ -55,10 +55,12 @@ class ProductManager{
 }
 
 const productos=new ProductManager()
-productos.addProduct('remera','corto rosa',120,null,10)
-productos.addProduct('gorra','azul x',100,null,30)
-productos.addProduct('pantalon','negro',0,null,10)
+productos.addProduct('short','blanco',400,null,5,23)
+productos.addProduct('remera','corto rosa',120,null,9,20)
+productos.addProduct('campera','azul x',100,null,7,20)
+productos.addProduct('pantalon','negro',0,null,3,20)
+
 
 console.log(productos.products)
 //buscar por id
-console.log(productos.getProductById(5))
+console.log(productos.getProductById(6))
