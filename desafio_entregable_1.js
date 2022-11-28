@@ -18,7 +18,7 @@ class ProductManager{
         return parseInt(Math.random() * 1000) 
     }
 
-    addProduct=(title, description, price,thumbnail,code,stock)=>{
+    addProduct=(title,description,price,thumbnail,code,stock)=>{
         const id=this.getNextID()
         
         // const code=this.getcode()
@@ -32,17 +32,20 @@ class ProductManager{
             stock :stock ??50
             
         }
-        const sameId = (element) => element != event.code
-        if (!this.products.some(sameId)) {
+        //se repite code
+        const sameId = element => element != event.code
+        const hda=this.products.some(sameId)
+        console.log(hda)
             this.products.push(event)
-        } else {
-            console.log("An id is duplicated")
-        }
+        
+        
     }
+
     // addcode=(eventID,code)=>{
     //     const event=this.products.find(event=>event.id==eventID)
     //     return event.some(e=>e.codigo === code); 
     // }
+
     getProductById=(eventID)=>{
         const event=this.products.filter(product=>product.id==eventID)
         console.log(event)
@@ -56,9 +59,9 @@ class ProductManager{
 
 const productos=new ProductManager()
 productos.addProduct('short','blanco',400,null,5,23)
-productos.addProduct('remera','corto rosa',120,null,9,20)
-productos.addProduct('campera','azul x',100,null,7,20)
-productos.addProduct('pantalon','negro',0,null,3,20)
+productos.addProduct('remera','corto rosa',120,null,1,20)
+productos.addProduct('campera','azul x',100,null,5,4)
+productos.addProduct('pantalon','negro',521,null,3,29)
 
 
 console.log(productos.products)
