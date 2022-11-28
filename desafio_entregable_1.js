@@ -17,11 +17,19 @@ class ProductManager{
     getcode=()=>{
         return parseInt(Math.random() * 1000) 
     }
+    
+    //Validar campos
+    validarCampos = (title, description, price, thumbnail, stock, code) =>{
+        if((title == undefined || title == "") || (description == undefined || description == "") || (price == undefined ||price == "") || ( thumbnail== "") || (code == undefined) || (stock == undefined || stock == "")){
+            console.log("ERROR: TODOS LOS CAMPOS SON OBLIGATORIOS")
+            return false;
+        }else{
+            return true;
+        }
+    }
 
-    addProduct=(title,description,price,thumbnail,code,stock)=>{
+    addProduct=(title, description, price,thumbnail,code,stock)=>{
         const id=this.getNextID()
-        
-        // const code=this.getcode()
         const event={
             id,
             title,
@@ -32,19 +40,14 @@ class ProductManager{
             stock :stock ??50
             
         }
-        //se repite code
-        const sameId = element => element != event.code
-        const hda=this.products.some(sameId)
-        console.log(hda)
+        //verificar si el code se repite
+        let samecode = (element) => element.code === code
+        if (!this.products.some(samecode)&& this.validarCampos(title, description, price, thumbnail, code, stock)) {
             this.products.push(event)
-        
-        
+        } else {
+            console.log("An code is duplicated")
+        }
     }
-
-    // addcode=(eventID,code)=>{
-    //     const event=this.products.find(event=>event.id==eventID)
-    //     return event.some(e=>e.codigo === code); 
-    // }
 
     getProductById=(eventID)=>{
         const event=this.products.filter(product=>product.id==eventID)
@@ -56,14 +59,14 @@ class ProductManager{
         }
     }
 }
-
+//Agregar productos
 const productos=new ProductManager()
-productos.addProduct('short','blanco',400,null,5,23)
-productos.addProduct('remera','corto rosa',120,null,1,20)
-productos.addProduct('campera','azul x',100,null,5,4)
-productos.addProduct('pantalon','negro',521,null,3,29)
-
+productos.addProduct('remera','rosa',2000,null,5,23)
+productos.addProduct('short','blanco',1000,null,5,23)
+productos.addProduct('campera','azul',0,null,0,0)
+productos.addProduct('pantalon','negro',3222,null,3,20)
 
 console.log(productos.products)
+
 //buscar por id
 console.log(productos.getProductById(6))
