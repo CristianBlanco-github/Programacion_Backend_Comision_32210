@@ -1,72 +1,93 @@
-class ProductManager{
-    constructor(){
-        this.products=[]
-    }
-    getProducts=()=>{return this.products}
-    //Consigue el siguiente ID
-    getNextID=()=>{
-        const count=this.products.length
-        if(count==0) return 1
-        const lastEvent=this.products[count-1]
-        const lastID=lastEvent.id
-        const nextID=lastID+1
-        // const nextID = (amount > 0) ? this.products[amount - 1].id + 1 : 1;
-            return nextID
-        
-    }
-    getcode=()=>{
-        return parseInt(Math.random() * 1000) 
-    }
-    
-    //Validar campos
-    validarCampos = (title, description, price, thumbnail, stock, code) =>{
-        if((title == undefined || title == "") || (description == undefined || description == "") || (price == undefined ||price == "") || ( thumbnail== "") || (code == undefined) || (stock == undefined || stock == "")){
-            console.log("ERROR: TODOS LOS CAMPOS SON OBLIGATORIOS")
-            return false;
-        }else{
-            return true;
-        }
+const fs = require('fs')
+
+class ProductManager {
+    constructor(fileName){
+        this.fileName = fileName
+        this.format = 'utf-8'
     }
 
-    addProduct=(title, description, price,thumbnail,code,stock)=>{
-        const id=this.getNextID()
-        const event={
-            id,
-            title,
-            description,
-            price,
-            thumbnail:thumbnail ??'Sin imagen',
-            code,
-            stock :stock ??50
-            
-        }
-        //verificar si el code se repite
-        let samecode = (element) => element.code === code
-        if (!this.products.some(samecode)&& this.validarCampos(title, description, price, thumbnail, code, stock)) {
-            this.products.push(event)
+     generateID = async () => {
+        const data = await this.getProduct()
+        const count = data.length
+
+        if (count == 0) return 1;
+
+        const lastProduct = data[count - 1]
+        const lastID = lastProduct.id
+        const nextID = lastID + 1
+
+        return nextID
+    }
+
+    addProduct = async (title, description, price, thumbnail, stock, code) => {
+        const id = await this.generateID()
+
+        return this.getProduct()
+            .then(products => {
+                products.push({id, title, description, price, thumbnail, stock, code})
+                return products
+            })
+            .then(productsNew => fs.promises.writeFile(this.fileName, JSON.stringify(productsNew)))
+    }
+
+    getProductById = async (id) => {
+        const data = await this.getProduct()
+        const productFound = data.find(product => product.id === id)
+        return productFound || console.log(`ERROR: EL PRODUCTO CON EL ID "${id}" NO EXISTE.`);
+    }
+
+    getProduct = async () => {
+        const product = fs.promises.readFile(this.fileName, this.format)
+        return product
+            .then(content => JSON.parse(content))
+            .catch(e => {if(e) return []})
+    }
+
+    eliminarProduct = async (id) => {
+        const data = await this.getProduct()
+        const toBeDeleted = data.find(product => product.id === id)
+
+        if(toBeDeleted){
+            const index = data.indexOf(toBeDeleted)
+            data.splice(index, 1);
+            await fs.promises.writeFile(this.fileName, JSON.stringify(data))
+            console.log(`\n\nPRODUCTO ELIMINADO: ID "${id}".`);
         } else {
-            console.log("An code is duplicated")
+            console.log(`\n\nERROR AL ELIMINAR PRODUCTO: EL PRODUCTO CON EL ID "${id}" NO SE ENCUENTRA EN LA LISTA.`);
         }
     }
 
-    getProductById=(eventID)=>{
-        const event=this.products.filter(product=>product.id==eventID)
-        console.log(event)
-        if(event.length===0){
-            return `no exite`
-        }else{
-            return `existe`
-        }
+    updateProduct = async (id) => {
+        const data = await this.getProduct()
+        const toBeUpdated = data.find(product => product.id === id)
+
+        toBeUpdated["title"] = "PRODUCTO ACTUALIZADO"
+        toBeUpdated["stock"] = 150
+        
+        fs.writeFileSync(this.fileName, JSON.stringify(data))
     }
+
 }
-//Agregar productos
-const productos=new ProductManager()
-productos.addProduct('remera','rosa',2000,null,5,23)
-productos.addProduct('short','blanco',1000,null,5,23)
-productos.addProduct('campera','azul',0,null,0,0)
-productos.addProduct('pantalon','negro',3222,null,3,20)
 
-console.log(productos.products)
+// falta vaciar todo el carrito y verificar code
 
-//buscar por id
-console.log(productos.getProductById(6))
+async function run(){
+    const manager = new ProductManager('./products.json')
+    await manager.addProduct('remera', 'rosa', 1500, "sin imagen", 12, 'zde12')
+    await manager.addProduct('gorro', 'negro', 2500, "sin imagen", 2, 'trd82')
+    await manager.addProduct('patalon', 'negro', 3500, "sin imagen", 4, 'trd89')
+    await manager.addProduct('campera', 'azul', 4500, "sin imagen", 21, 'eqw16')
+    await manager.addProduct('short', 'morado', 5500, "sin imagen", 21, 'zee19')
+    await manager.eliminarProduct(2);
+    await manager.updateProduct(4)
+
+    console.log("---------------------------------PRODUCTOS AGREGADOS:\n");
+    console.log(await manager.getProduct(2));
+    console.log("---------------------------------\nPRODUCTO SELECCIONADO:");
+    console.log(await manager.getProductById(3));
+    console.log("---------------------------------")
+    console.log(await manager.getProductById(50));
+    
+}
+
+run()
